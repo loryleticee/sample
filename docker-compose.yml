@@ -1,0 +1,77 @@
+version: '3.6'
+
+services:
+    a2po-php:
+        build:
+            context: ./docker
+            dockerfile: php.Dockerfile
+        container_name: loryleticee-php
+        command: >
+            bash ci/docker_install.sh > /dev/null
+        depends_on:
+          - database-noisette
+          - database-c3poc
+          - database-user
+        volumes:
+            - './:/var/www/html:cached'
+
+    nginx:
+        image: 'nginx:1.13.6'
+        container_name: loryleticee-nginx
+        ports:
+            - '82:80'
+            - '443:443'
+        links:
+            - 'php'
+        volumes:
+            - './:/var/www/html:cached'
+            - './config/nginx:/etc/nginx/conf.d:cached'
+
+    database-noisette:
+        image: 'mcr.microsoft.com/mssql/server:2022-latest'
+        container_name: loryleticee-database
+        restart: 'on-failure'
+        ports:
+            - "1436:1433"
+        environment:
+            ACCEPT_EULA: 'Y'
+            MSSQL_SA_PASSWORD: ${PASS_NOISETTE}
+        volumes:
+            - './bdd_noisette/data:/var/opt/mssql/data'
+            - './bdd_noisette/log:/var/opt/mssql/log'
+            - './bdd_noisette/secrets:/var/opt/mssql/secrets'
+            - './init.bdd:/srv'
+
+    database-c3poc:
+        image: 'mcr.microsoft.com/mssql/server:2022-latest'
+        container_name: loryleticee-database
+        restart: 'on-failure'
+        ports:
+            - "1432:1433"
+        environment:
+            ACCEPT_EULA: 'Y'
+            MSSQL_SA_PASSWORD: ${PASS_C3POC}
+        volumes:
+            - './bdd_c3poc/data:/var/opt/mssql/data'
+            - './bdd_c3poc/log:/var/opt/mssql/log'
+            - './bdd_c3poc/secrets:/var/opt/mssql/secrets'
+            - './init.bdd:/srv'
+
+    database-user:
+        image: 'mcr.microsoft.com/mssql/server:2022-latest'
+        container_name: loryleticee-database
+        restart: 'on-failure'
+        ports:
+            - "1434:1433"
+        environment:
+            ACCEPT_EULA: 'Y'
+            MSSQL_SA_PASSWORD: ${PASS_USER}
+        volumes:
+            - './bdd_user/data:/var/opt/mssql/data'
+            - './bdd_user/log:/var/opt/mssql/log'
+            - './bdd_user/secrets:/var/opt/mssql/secrets'
+            - './init.bdd:/srv'
+
+networks: 
+  default:
+    name: loryleticee
