@@ -6,8 +6,8 @@ services:
             context: ./docker
             dockerfile: php.Dockerfile
         container_name: loryleticee-php
-        command: >
-            bash ci/docker_install.sh > /dev/null
+        # command: >
+        #     bash ci/docker_install.sh > /dev/null
         depends_on:
           - database-noisette
           - database-c3poc
@@ -22,14 +22,14 @@ services:
             - '82:80'
             - '443:443'
         links:
-            - 'php'
+            - 'a2po-php'
         volumes:
             - './:/var/www/html:cached'
             - './config/nginx:/etc/nginx/conf.d:cached'
 
     database-noisette:
         image: 'mcr.microsoft.com/mssql/server:2022-latest'
-        container_name: loryleticee-database
+        container_name: loryleticee-database-noisette
         restart: 'on-failure'
         ports:
             - "1436:1433"
@@ -44,7 +44,7 @@ services:
 
     database-c3poc:
         image: 'mcr.microsoft.com/mssql/server:2022-latest'
-        container_name: loryleticee-database
+        container_name: loryleticee-database-c3poc
         restart: 'on-failure'
         ports:
             - "1432:1433"
@@ -59,7 +59,7 @@ services:
 
     database-user:
         image: 'mcr.microsoft.com/mssql/server:2022-latest'
-        container_name: loryleticee-database
+        container_name: loryleticee-database-user
         restart: 'on-failure'
         ports:
             - "1434:1433"
