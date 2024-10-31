@@ -1,0 +1,45 @@
+- name: Provisionning utils worker
+  hosts: frankfurt
+  remote_user: root
+  become: yes
+  gather_facts: no
+
+  vars:
+    servers:
+      opplqas00b00005: {
+        ip: "1.1.1.1",
+        env: "prod",
+        type: "front",
+        work_dir: "prod",
+      }
+      opplqas00b00003: {
+        ip: "2.2.2.2",
+        env: "prod",
+        type: "back",
+        work_dir: "prod",
+      }
+      uaplqas00b00001_front: {
+        ip: "54.37.75.241",
+        env: "preprod", type: "front", work_dir: "E:/www/pilfast",
+      }
+      uaplqas00b00001_back: {
+        ip: "54.37.75.241", env: "preprod", type: "back", work _dir: "E:/www/pilfast",
+      }
+
+    servers_data: >-
+      {{
+        servers | dict2items |
+        selectattr('value.ip', 'defined') |
+        selectattr('value.env', 'defined') |
+        selectattr("value.ip", 'equalto', inventory_hostname) |
+        items2dict | dict2items | map(attribute='value') | list
+      }}
+
+    # Check if any server in servers_data has type "front"
+    is_front: >-
+      {{
+        servers_data | selectattr('type', 'equalto', 'front') | list | length > 0
+      }}
+  tasks:
+    - name: Provisionning utils worker
+      shell: echo "{{ 'ok' if is_front else 'no' }}" > zzzz
