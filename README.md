@@ -1,7 +1,11 @@
 # sample
 
 
-
+haproxy_services: >
+  {{
+    swarmServices | dict2items | selectattr('value.tag', 'defined') | selectattr('value.dns', 'defined') | selectattr('value.dns', 'contains', inventory_hostname) |
+    selectattr('value.tag', 'contains', 'haproxy') | items2dict | dict2items | map(attribute='value') | list
+  }}
 
 
 
