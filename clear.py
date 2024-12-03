@@ -86,16 +86,16 @@ def remove_terminated_pipelines_from_group(group_id):
         project_id = project['id']
         project_name = project['name']
 
-        print(f"Checking terminated pipelines for project {project_name} (ID: {project_id})...")
-        pipelines = get_terminated_pipelines(project_id)
+       for status in ['failed', 'success', 'canceled', 'skipped']:
+            pipelines = get_terminated_pipelines(project_id, status)
 
-        if not pipelines:
-            print(f"No terminated pipelines found for project {project_name} (ID: {project_id}).")
-        else:
-            for pipeline in pipelines:
-                pipeline_id = pipeline['id']
-                print(f"Deleting pipeline ID {pipeline_id} for project {project_name} (ID: {project_id})...")
-                delete_pipeline(project_id, pipeline_id)
+            if not pipelines:
+                print(f"No terminated pipelines found for project {project_name} (ID: {project_id}).")
+            else:
+                for pipeline in pipelines:
+                    pipeline_id = pipeline['id']
+                    print(f"Deleting pipeline ID {pipeline_id} for project {project_name} (ID: {project_id})...")
+                    delete_pipeline(project_id, pipeline_id)
 
 if __name__ == "__main__":
     for GROUP_ID in GROUP_IDS:
